@@ -1,7 +1,11 @@
-const SignUp = () => {
+import AuthForm from "@/components/AuthForm"
+
+const Signup = () => {
     return (
-        <div>page</div>
+        <section className="flex-center size-full max-sm: px-6">
+           <AuthForm type="sign-up" /> 
+        </section>
     )
 }
 
-export default SignUp
+export default Signup
