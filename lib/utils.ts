@@ -1,4 +1,4 @@
-/* eslint-disable no-prototype-builtins */
+ 
 import { type ClassValue, clsx } from "clsx";
 import qs from "query-string";
 import { twMerge } from "tailwind-merge";
@@ -77,7 +77,8 @@ export function formatAmount(amount: number): string {
 }
 
 // JSON.stringify(undefined) returns undefined, which JSON.parse then chokes on.
-export const parseStringify = (value: any) => JSON.parse(JSON.stringify(value ?? null));
+export const parseStringify = (value: unknown) =>
+  JSON.parse(JSON.stringify(value ?? null));
 
 export const removeSpecialCharacters = (value: string) => {
   return value.replace(/[^\w\s]/gi, "");

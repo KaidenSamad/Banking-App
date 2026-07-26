@@ -1,4 +1,4 @@
-/* eslint-disable no-unused-vars */
+ 
 
 declare type SearchParamProps = {
   params: Promise<{ [key: string]: string }>;
@@ -194,7 +194,9 @@ declare interface AuthFormProps {
 
 declare interface BankDropdownProps {
   accounts: Account[];
-  setValue?: UseFormSetValue<any>;
+  // Narrowed to the only field BankDropdown writes, so any form whose schema
+  // has a string `senderBank` can pass its `setValue` straight through.
+  setValue?: (name: "senderBank", value: string) => void;
   otherStyles?: string;
 }
 

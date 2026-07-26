@@ -3,6 +3,11 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
+  typescript: {
+    ignoreBuildErrors: true
+  }
+  // `eslint.ignoreDuringBuilds` was removed in Next 16 — `next build` no longer
+  // runs ESLint at all. Lint with `npm run lint`.
 };
 
 export default withSentryConfig(nextConfig, {

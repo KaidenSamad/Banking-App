@@ -148,13 +148,27 @@ export const getInstitution = async ({
   }
 };
 
+// Shape we map Plaid's raw transactions into before sending them to the client
+type PlaidTransaction = {
+  id: string;
+  name: string;
+  paymentChannel: string;
+  type: string;
+  accountId: string;
+  amount: number;
+  pending: boolean;
+  category: string;
+  date: string;
+  image: string | null | undefined;
+};
+
 // Get transactions
 export const getTransactions = async ({
   accessToken,
 }: getTransactionsProps) => {
   let hasMore = true;
   let cursor: string | undefined = undefined;
-  let transactions: any = [];
+  let transactions: PlaidTransaction[] = [];
 
   try {
     // Iterate through each page of new transaction updates for item
