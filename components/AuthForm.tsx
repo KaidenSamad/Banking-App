@@ -20,6 +20,7 @@ const AuthForm = ({ type }: { type: string }) => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [loggedInUser, setLoggedInUser] = useState(null);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     getLoggedInUser().then(setLoggedInUser);
@@ -47,6 +48,7 @@ const AuthForm = ({ type }: { type: string }) => {
   // 2. Define a submit handler.
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     setIsLoading(true);
+    setErrorMessage('');
 
     try {
       if(type === 'sign-up') {
@@ -79,6 +81,7 @@ const AuthForm = ({ type }: { type: string }) => {
       }
     } catch (error) {
       console.log(error);
+      setErrorMessage(error instanceof Error ? error.message : 'Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -144,6 +147,10 @@ const AuthForm = ({ type }: { type: string }) => {
               <CustomInput control={form.control} name='email' label="Email" placeholder='Enter your email' />
 
               <CustomInput control={form.control} name='password' label="Password" placeholder='Enter your password' />
+
+              {errorMessage && (
+                <p className="text-14 text-red-500">{errorMessage}</p>
+              )}
 
               <div className="flex flex-col gap-4">
                 <Button type="submit" disabled={isLoading} className="form-btn">

@@ -20,41 +20,45 @@ export const getUserInfo = async ({ userId }: getUserInfoProps) => {
     const { database } = await createAdminClient();
 
     const user = await database.listRows({
-      databaseId: process.env.APPWRITE_DATABASE_ID!,
-      tableId: process.env.APPWRITE_USER_COLLECTION_ID!,
-      queries: [Query.equal("userId", [userId])],
+      databaseId: DATABASE_ID!,
+      tableId: USER_COLLECTION_ID!,
+      queries: [Query.equal('userId', [userId])],
     });
 
-    const userRow = user.rows[0];
-    if (!userRow) return null;
+    if (user.total === 0) return null;
 
-    return parseStringify({
-      ...userRow,
-      name: userRow.name || `${userRow.firstName} ${userRow.lastName}`,
-    });
+    return parseStringify(user.rows[0]);
   } catch (error) {
-    console.error("Error", error);
+    console.log(error)
   }
 }
 
 export const signIn = async ({ email, password }: signInProps) => {
+  const { account } = await createAdminClient();
+
+  let session;
+
   try {
-    const { account } = await createAdminClient();
-    const session = await account.createEmailPasswordSession(email, password);
-
-    (await cookies()).set("appwrite-session", session.secret, {
-      path: "/",
-      httpOnly: true,
-      sameSite: "strict",
-      secure: true,
-    });
-
-    const user = await getUserInfo({ userId: session.userId })
-
-    return parseStringify(user);
+    session = await account.createEmailPasswordSession({ email, password });
   } catch (error) {
     console.error('Error', error);
+    throw new Error('Invalid credentials. Please check the email and password.');
   }
+
+  (await cookies()).set("appwrite-session", session.secret, {
+    path: "/",
+    httpOnly: true,
+    sameSite: "strict",
+    secure: true,
+  });
+
+  const user = await getUserInfo({ userId: session.userId })
+
+  // The auth account exists but has no matching row in the user table — this
+  // happens when sign-up created the account then failed partway through.
+  if (!user) throw new Error('Your account is missing its profile. Please sign up again.');
+
+  return parseStringify(user);
 }
 
 
@@ -66,12 +70,12 @@ export const signUp = async ({password, ...userData}: SignUpParams) => {
     let newUserAccount;
 
   try {
-    newUserAccount = await account.create(
-      ID.unique(),
+    newUserAccount = await account.create({
+      userId: ID.unique(),
       email,
       password,
-      `${firstName} ${lastName}`
-    );
+      name: `${firstName} ${lastName}`,
+    });
 
     if(!newUserAccount) throw new Error('Error creating user')
 
@@ -96,7 +100,7 @@ export const signUp = async ({password, ...userData}: SignUpParams) => {
       },
     })
 
-    const session = await account.createEmailPasswordSession(email, password);
+    const session = await account.createEmailPasswordSession({ email, password });
 
     (await cookies()).set("appwrite-session", session.secret, {
       path: "/",
@@ -127,7 +131,7 @@ export async function getLoggedInUser() {
 
     return parseStringify(user);
   } catch (error) {
-    // console.log(error)
+    console.log(error)
     return null;
   }
 }
@@ -138,7 +142,7 @@ export const logoutAccount = async () => {
 
     (await cookies()).delete('appwrite-session');
 
-    await account.deleteSession('current');
+    await account.deleteSession({ sessionId: 'current' });
   } catch (error) {
     return null;
   }
@@ -151,7 +155,7 @@ export const createLinkToken = async (user: User) => {
         client_user_id: user.$id
       },
       client_name: `${user.firstName} ${user.lastName}`,
-      products: ['auth'] as Products[],
+      products: ['auth', 'transactions'] as Products[],
       language: 'en',
       country_codes: ['US'] as CountryCode[],
     }
@@ -190,6 +194,58 @@ export const createBankAccount = async ({
     })
 
     return parseStringify(bankAccount);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export const getBanks = async ({ userId }: getBanksProps) => {
+  try {
+    const { database } = await createAdminClient();
+
+    const banks = await database.listRows({
+      databaseId: DATABASE_ID!,
+      tableId: BANK_COLLECTION_ID!,
+      queries: [Query.equal("userId", [userId])],
+    });
+
+    return parseStringify(banks.rows);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export const getBank = async ({ documentId }: getBankProps) => {
+  try {
+    const { database } = await createAdminClient();
+
+    const bank = await database.listRows({
+      databaseId: DATABASE_ID!,
+      tableId: BANK_COLLECTION_ID!,
+      queries: [Query.equal("$id", [documentId])],
+    });
+
+    if (bank.total === 0) return null;
+
+    return parseStringify(bank.rows[0]);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export const getBankByAccountId = async ({ accountId }: getBankByAccountIdProps) => {
+  try {
+    const { database } = await createAdminClient();
+
+    const bank = await database.listRows({
+      databaseId: DATABASE_ID!,
+      tableId: BANK_COLLECTION_ID!,
+      queries: [Query.equal("accountId", [accountId])],
+    });
+
+    if (bank.total !== 1) return null;
+
+    return parseStringify(bank.rows[0]);
   } catch (error) {
     console.log(error);
   }
