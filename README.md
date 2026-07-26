@@ -8,7 +8,7 @@ transaction history, and send money between accounts via Dwolla's ACH network.
 
 <!-- Paste your Vercel deployment URL below -->
 
-**[👉 View the live site](banking-app-khaki-xi.vercel.app)**
+**[👉 View the live site](https://banking-app-khaki-xi.vercel.app/)**
 
 ## What It Does
 
