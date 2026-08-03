@@ -4,11 +4,9 @@ A full-stack banking dashboard built with Next.js. Users sign up, securely link 
 accounts through Plaid, and get a single place to see balances across every connected bank, browse
 transaction history, and send money between accounts via Dwolla's ACH network.
 
-## 🔗 Live Demo
+## Live Demo
 
-<!-- Paste your Vercel deployment URL below -->
-
-**[👉 View the live site](https://banking-app-khaki-xi.vercel.app/)**
+**[View the live site](https://banking-app-khaki-xi.vercel.app/)**
 
 ## What It Does
 
